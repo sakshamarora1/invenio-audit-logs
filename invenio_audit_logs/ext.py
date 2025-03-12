@@ -7,9 +7,10 @@
 
 """Module providing audit logging features for Invenio.."""
 
-from invenio_i18n import gettext as _
+from invenio_logging.datastream import InvenioLoggingDatastreams
 
 from . import config
+from .resources import AuditLogsResource, AuditLogsResourceConfig
 
 
 class InvenioAuditLogs(object):
@@ -17,26 +18,23 @@ class InvenioAuditLogs(object):
 
     def __init__(self, app=None):
         """Extension initialization."""
-        # TODO: This is an example of translation string with comment. Please
-        # remove it.
-        # NOTE: This is a note to a translator.
-        _("A translation string")
         if app:
             self.init_app(app)
 
     def init_app(self, app):
-        """Flask application initialization."""
+        """Flask application initializ§ation."""
         self.init_config(app)
-        app.extensions["invenio-audit-logs"] = self
+        self.init_resources(app)
 
     def init_config(self, app):
         """Initialize configuration."""
-        # Use theme's base template if theme is installed
-        if "BASE_TEMPLATE" in app.config:
-            app.config.setdefault(
-                "AUDIT_LOGS_BASE_TEMPLATE",
-                app.config["BASE_TEMPLATE"],
-            )
         for k in dir(config):
             if k.startswith("AUDIT_LOGS_"):
                 app.config.setdefault(k, getattr(config, k))
+
+    def init_resources(self, app):
+        """Init resources."""
+        self.resource = AuditLogsResource(
+            config=AuditLogsResourceConfig.build(app),
+            manager=self.manager,
+        )

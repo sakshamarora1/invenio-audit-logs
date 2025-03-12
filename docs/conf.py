@@ -111,7 +111,9 @@ html_theme_options = {
     "github_banner": True,
     "show_powered_by": False,
     "extra_nav_links": {
-        "invenio-audit-logs@GitHub": ("https://github.com/inveniosoftware/invenio-audit-logs"),
+        "invenio-audit-logs@GitHub": (
+            "https://github.com/inveniosoftware/invenio-audit-logs"
+        ),
         "invenio-audit-logs@PyPI": ("https://pypi.python.org/pypi/invenio-audit-logs/"),
     },
 }
