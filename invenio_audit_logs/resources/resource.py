@@ -24,10 +24,10 @@ from invenio_records_resources.resources.records.utils import search_preference
 class AuditLogsResource(Resource):
     """Resource layer for audit-logs."""
 
-    def __init__(self, config, manager):
+    def __init__(self, config, service):
         """Constructor."""
         super(AuditLogsResource, self).__init__(config)
-        self.manager = manager
+        self.service = service
 
     def create_blueprint(self, **options):
         """Create the blueprint."""
@@ -53,7 +53,7 @@ class AuditLogsResource(Resource):
     @response_handler(many=True)
     def search(self):
         """Perform a search over the logs."""
-        hits = self.manager.search(
+        hits = self.service.search(
             identity=g.identity,
             params=resource_requestctx.args,
             search_preference=search_preference(),
@@ -66,7 +66,7 @@ class AuditLogsResource(Resource):
     @response_handler()
     def read(self):
         """Read a specific log entry."""
-        item = self.manager.read_all(
+        item = self.service.read_all(
             id_=resource_requestctx.view_args["id"],
             identity=g.identity,
             expand=resource_requestctx.args.get("expand", False),

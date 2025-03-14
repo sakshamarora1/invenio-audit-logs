@@ -8,10 +8,10 @@
 
 """Datastream Logging Builder module."""
 
-from invenio_logging.datastreams.builders import LogBuilder
+from invenio_logging.engine.builders import LogBuilder
 
 from .backends import AuditLogSearchBackend
-from .services.schemas import AuditLogSchema
+from .services.schema import AuditLogSchema
 
 
 class AuditLogBuilder(LogBuilder):
@@ -19,7 +19,7 @@ class AuditLogBuilder(LogBuilder):
 
     type = "audit"
 
-    backend_cls = AuditLogSearchBackend()
+    backend_cls = AuditLogSearchBackend
 
     schema = AuditLogSchema()
 
@@ -31,7 +31,7 @@ class AuditLogBuilder(LogBuilder):
     @classmethod
     def send(cls, log_event):
         """Send log event using the backend."""
-        cls.backend_cls.send(log_event)
+        cls.backend_cls().send(log_event)
 
     @classmethod
     def search(cls, query):

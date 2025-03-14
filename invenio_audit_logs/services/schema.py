@@ -46,11 +46,6 @@ class ResourceSchema(Schema):
     metadata = fields.Dict(
         required=False, description="Optional metadata related to the resource."
     )
-    parent = fields.Nested(
-        "self",
-        required=False,
-        description="Optional parent resource, indicating hierarchy (e.g., a run inside a job).",
-    )
 
 
 class AuditLogSchema(Schema):

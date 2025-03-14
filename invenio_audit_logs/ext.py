@@ -7,10 +7,9 @@
 
 """Module providing audit logging features for Invenio.."""
 
-from invenio_logging.datastream import InvenioLoggingDatastreams
-
 from . import config
 from .resources import AuditLogsResource, AuditLogsResourceConfig
+from .services import AuditLogService, AuditLogServiceConfig
 
 
 class InvenioAuditLogs(object):
@@ -24,7 +23,9 @@ class InvenioAuditLogs(object):
     def init_app(self, app):
         """Flask application initializ§ation."""
         self.init_config(app)
+        self.init_services(app)
         self.init_resources(app)
+        app.extensions["invenio-audit-logs"] = self
 
     def init_config(self, app):
         """Initialize configuration."""
@@ -32,9 +33,14 @@ class InvenioAuditLogs(object):
             if k.startswith("AUDIT_LOGS_"):
                 app.config.setdefault(k, getattr(config, k))
 
+    def init_services(self, app):
+        """Initialize services."""
+        self.service = AuditLogService(
+            config=AuditLogServiceConfig.build(app),
+        )
+
     def init_resources(self, app):
         """Init resources."""
         self.resource = AuditLogsResource(
             config=AuditLogsResourceConfig.build(app),
-            manager=self.manager,
         )

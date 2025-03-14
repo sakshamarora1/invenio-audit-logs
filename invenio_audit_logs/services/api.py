@@ -10,7 +10,7 @@
 
 from datetime import datetime
 
-from invenio_logging.datastreams.log_event import BaseLogEvent
+from invenio_logging.engine.log_event import BaseLogEvent
 
 
 class AuditLogEvent(BaseLogEvent):
@@ -18,7 +18,6 @@ class AuditLogEvent(BaseLogEvent):
 
     def __init__(
         self,
-        log_type="audit",
         event={},
         resource={},
         user={},
@@ -37,13 +36,10 @@ class AuditLogEvent(BaseLogEvent):
         :param timestamp: Optional timestamp (defaults to now).
         :param message: Optional human-readable message.
         """
-        self.type = log_type
-        self.timestamp = timestamp or datetime.now().isoformat()
-        self.event = event
+        super().__init__("audit", timestamp, event, message)
         self.resource = resource
         self.user = user
         self.extra = extra
-        self.message = message
 
     def to_dict(self):
         """Convert the log event to a dictionary matching the schema."""
