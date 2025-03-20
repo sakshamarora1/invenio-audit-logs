@@ -7,6 +7,7 @@
 
 """Audit Log Services."""
 
+from .api import AuditLogEvent
 from .config import AuditLogServiceConfig
 from .schema import AuditLogSchema
 from .service import AuditLogService
@@ -15,4 +16,5 @@ __all__ = (
     "AuditLogService",
     "AuditLogSchema",
     "AuditLogServiceConfig",
+    "AuditLogEvent",
 )

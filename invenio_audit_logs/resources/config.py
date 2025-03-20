@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2025 CERN.
+#
+# Invenio-Logging is free software; you can redistribute it and/or
+# modify it under the terms of the MIT License; see LICENSE file for more
+# details.
+
+"""Audit logs resource config."""
+
 from flask_resources import HTTPJSONException, create_error_handler
 from invenio_records_resources.resources import (
     RecordResourceConfig,

@@ -21,7 +21,7 @@ class InvenioAuditLogs(object):
             self.init_app(app)
 
     def init_app(self, app):
-        """Flask application initializ§ation."""
+        """Flask application initialization."""
         self.init_config(app)
         self.init_services(app)
         self.init_resources(app)
@@ -42,5 +42,6 @@ class InvenioAuditLogs(object):
     def init_resources(self, app):
         """Init resources."""
         self.resource = AuditLogsResource(
+            service=self.service,
             config=AuditLogsResourceConfig.build(app),
         )
