@@ -9,7 +9,6 @@
 """Invenio OpenSearch Datastream Schema."""
 
 from datetime import datetime
-import pdb
 from marshmallow import EXCLUDE, Schema, fields
 
 
@@ -29,6 +28,10 @@ class EventSchema(Schema):
     action = fields.Str(
         required=True,
         description="The action that took place (e.g., created, deleted).",
+    )
+    status = fields.Str(
+        required=False,
+        description="Status of the event (e.g., success, failure).",
     )
     description = fields.Str(
         required=False, description="Detailed description of the event."
@@ -56,6 +59,10 @@ class AuditLogSchema(Schema):
 
         unknown = EXCLUDE  # Ignore unknown fields
 
+    log_id = fields.Str(
+        required=False,
+        description="Unique identifier of the audit log event.",
+    )
     timestamp = fields.DateTime(
         required=True,
         description="Timestamp when the event occurred.",
@@ -81,7 +88,7 @@ class AuditLogSchema(Schema):
 
     def _convert_timestamp(self, obj):
         """Convert `timestamp` from ISO string to datetime if needed."""
-        if isinstance(obj, dict) and isinstance(obj.get("@timestamp"), str):
+        if isinstance(obj.get("@timestamp"), str):
             obj["@timestamp"] = datetime.fromisoformat(obj["@timestamp"])
         return obj
 
@@ -94,6 +101,5 @@ class AuditLogSchema(Schema):
             obj = [self._convert_timestamp(item) for item in obj]
         else:
             obj = self._convert_timestamp(obj)
-        # pdb.set_trace()
 
         return super().dump(obj, **kwargs)

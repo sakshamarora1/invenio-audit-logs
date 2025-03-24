@@ -63,8 +63,6 @@ class AuditLogsResource(Resource):
             search_preference=search_preference(),
             expand=resource_requestctx.args.get("expand", False),
         )
-        from flask import current_app
-        current_app.logger.info(hits.to_dict())
         return hits.to_dict(), 200
 
     @request_extra_args

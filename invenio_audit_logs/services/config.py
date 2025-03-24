@@ -35,7 +35,7 @@ from ..records import AuditLogEvent
 class AuditLogSearchOptions(SearchOptionsBase):
     """Audit log search options."""
 
-    sort_default = "bestmatch"
+    sort_default = "newest"
     sort_default_no_query = "bestmatch"
 
     sort_direction_default = "asc"
@@ -55,16 +55,20 @@ class AuditLogSearchOptions(SearchOptionsBase):
 
     sort_options = {
         "bestmatch": dict(title=_("Best match"), fields=["_score"]),
-        "newest": dict(title=_("Timestamp"), fields=["@timestamp"]),
+        "newest": dict(title=_("Timestamp"), fields=["timestamp"]),
+        "oldest": dict(title="Oldest", fields=["-timestamp"]),
     }
 
-    pagination_options = {"default_results_per_page": 25}
+    pagination_options = {
+        "default_results_per_page": 25,
+        "default_max_results": 10
+    }
 
     params_interpreters_cls = [
         QueryStrParam,
-        # SortParam,
-        # PaginationParam,
-        # FacetsParam,
+        SortParam,
+        PaginationParam,
+        FacetsParam,
     ]
 
 
