@@ -44,8 +44,8 @@ error_handlers = {
 class AuditLogsResourceConfig(RecordResourceConfig, ConfiguratorMixin):
     """Audit-Logs resource configuration."""
 
-    blueprint_name = "logs"
-    url_prefix = "/logs"
+    blueprint_name = "audit_logs"
+    url_prefix = "/audit-logs"
 
     routes = {
         "list": "/",

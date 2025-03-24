@@ -9,7 +9,7 @@
 """Invenio OpenSearch Datastream Schema."""
 
 from datetime import datetime
-
+import pdb
 from marshmallow import EXCLUDE, Schema, fields
 
 
@@ -81,8 +81,8 @@ class AuditLogSchema(Schema):
 
     def _convert_timestamp(self, obj):
         """Convert `timestamp` from ISO string to datetime if needed."""
-        if isinstance(obj, dict) and isinstance(obj.get("timestamp"), str):
-            obj["timestamp"] = datetime.fromisoformat(obj["timestamp"])
+        if isinstance(obj, dict) and isinstance(obj.get("@timestamp"), str):
+            obj["@timestamp"] = datetime.fromisoformat(obj["@timestamp"])
         return obj
 
     def dump(self, obj, **kwargs):
@@ -94,5 +94,6 @@ class AuditLogSchema(Schema):
             obj = [self._convert_timestamp(item) for item in obj]
         else:
             obj = self._convert_timestamp(obj)
+        # pdb.set_trace()
 
         return super().dump(obj, **kwargs)

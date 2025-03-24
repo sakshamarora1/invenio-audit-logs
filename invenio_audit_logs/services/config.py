@@ -8,46 +8,85 @@
 """Audit Logs Service Config."""
 
 from invenio_i18n import lazy_gettext as _
-from invenio_indexer.api import RecordIndexer
+from invenio_records_resources.services import pagination_links
+from invenio_records_resources.services.base.links import Link
 from invenio_records_resources.services.base import ServiceConfig
 from invenio_records_resources.services.base.config import ConfiguratorMixin, FromConfig
 from invenio_records_resources.services.records.config import (
     SearchOptions as SearchOptionsBase,
 )
+from invenio_records_resources.services.records.params import (
+    FacetsParam,
+    PaginationParam,
+    QueryStrParam,
+    SortParam,
+)
+from invenio_records_resources.services.records.queryparser import QueryParser
+
 from sqlalchemy import asc, desc
 
 from . import results
 from .permissions import AuditLogPermissionPolicy
 from .schema import AuditLogSchema
 
+from ..records import AuditLogEvent
+
 
 class AuditLogSearchOptions(SearchOptionsBase):
     """Audit log search options."""
 
-    sort_default = "timestamp"
-    sort_direction_default = "desc"
+    sort_default = "bestmatch"
+    sort_default_no_query = "bestmatch"
+
+    sort_direction_default = "asc"
     sort_direction_options = {
         "asc": dict(title=_("Ascending"), fn=asc),
         "desc": dict(title=_("Descending"), fn=desc),
     }
+
+    query_parser_cls = QueryParser.factory(fields=[
+        "id",
+        "message",
+        "event.action",
+        "user.id",
+        "user.email",
+        "resource.id",
+    ])
+
     sort_options = {
-        "timestamp": dict(title=_("Timestamp"), fields=["@timestamp"]),
+        "bestmatch": dict(title=_("Best match"), fields=["_score"]),
+        "newest": dict(title=_("Timestamp"), fields=["@timestamp"]),
     }
 
     pagination_options = {"default_results_per_page": 25}
 
+    params_interpreters_cls = [
+        QueryStrParam,
+        # SortParam,
+        # PaginationParam,
+        # FacetsParam,
+    ]
+
 
 class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
-    """App log service configuration."""
+    """Audit log service configuration."""
 
-    service_id = "app-logs"
+    service_id = "audit-logs"
     permission_policy_cls = FromConfig(
-        "APP_LOGS_PERMISSION_POLICY",
+        "AUDIT_LOGS_PERMISSION_POLICY",
         default=AuditLogPermissionPolicy,
     )
     search = AuditLogSearchOptions
     schema = AuditLogSchema
+
+    record_cls = AuditLogEvent
+    index_dumper = None
+
     components = []
-    links_item = None
+    links_item = {
+        "self": Link("{+api}/audit-logs/{id}"),
+    }
+    links_search = pagination_links("{+api}/audit-logs/{id}{?args*}")
+
     result_item_cls = results.AuditLogItem
     result_list_cls = results.AuditLogList

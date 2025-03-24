@@ -31,6 +31,10 @@ class AuditLogsResource(Resource):
 
     def create_blueprint(self, **options):
         """Create the blueprint."""
+        # We avoid passing url_prefix to the blueprint because we need to
+        # install URLs under both /audit-logs and /api/audit-logs. Instead we
+        # add the prefix manually to each route (which is anyway what Flask
+        # does in the end)
         options["url_prefix"] = ""
         return super().create_blueprint(**options)
 
@@ -59,6 +63,8 @@ class AuditLogsResource(Resource):
             search_preference=search_preference(),
             expand=resource_requestctx.args.get("expand", False),
         )
+        from flask import current_app
+        current_app.logger.info(hits.to_dict())
         return hits.to_dict(), 200
 
     @request_extra_args

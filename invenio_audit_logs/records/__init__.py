@@ -5,14 +5,12 @@
 # Invenio-Notifications is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
-"""Audit Log Services."""
+"""Audit Log data layer definitions."""
 
-from .config import AuditLogServiceConfig
-from .schema import AuditLogSchema
-from .service import AuditLogService
+from .api import AuditLogEvent
+from .models import AuditLogModel
 
 __all__ = (
-    "AuditLogService",
-    "AuditLogSchema",
-    "AuditLogServiceConfig",
+    "AuditLogEvent",
+    "AuditLogModel",
 )

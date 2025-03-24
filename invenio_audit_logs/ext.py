@@ -35,13 +35,14 @@ class InvenioAuditLogs(object):
 
     def init_services(self, app):
         """Initialize services."""
-        self.service = AuditLogService(
+        self.audit_log_service = AuditLogService(
             config=AuditLogServiceConfig.build(app),
         )
 
     def init_resources(self, app):
         """Init resources."""
-        self.resource = AuditLogsResource(
-            service=self.service,
+        self.audit_log_resource = AuditLogsResource(
+            service=self.audit_log_service,
             config=AuditLogsResourceConfig.build(app),
         )
+        app.register_blueprint(self.audit_log_resource.as_blueprint())

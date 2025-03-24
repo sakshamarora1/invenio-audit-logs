@@ -11,7 +11,7 @@
 from flask import current_app
 from invenio_logging.proxies import current_datastream_logging_manager
 
-# from invenio_records_resources.services.base import LinksTemplate
+from invenio_records_resources.services.base import LinksTemplate
 from invenio_records_resources.services.base.utils import map_search_params
 from invenio_records_resources.services.records import RecordService
 
@@ -19,7 +19,7 @@ from invenio_records_resources.services.records import RecordService
 class AuditLogService(RecordService):
     """Audit log service layer."""
 
-    def search(self, identity, params):
+    def search(self, identity, params, **kwargs):
         """Search for app logs."""
         self.require_permission(identity, "search")
         search_params = map_search_params(self.config.search, params)
@@ -30,5 +30,9 @@ class AuditLogService(RecordService):
             self,
             identity,
             results,
-            links_tpl=self.links_item_tpl,
+            search_params,
+            links_tpl=LinksTemplate(self.config.links_search, context={"args": params}),
+            links_item_tpl=self.links_item_tpl,
+            expandable_fields=self.expandable_fields,
+            expand=kwargs.get("expand", False),
         )
