@@ -8,8 +8,6 @@
 
 """Module providing audit logging features for Invenio.."""
 
-from .backends import AuditLogSearchBackend
-from .builders import AuditLogBuilder
 from .ext import InvenioAuditLogs
 
 __version__ = "0.1.0"
@@ -17,6 +15,4 @@ __version__ = "0.1.0"
 __all__ = (
     "__version__",
     "InvenioAuditLogs",
-    "AuditLogSearchBackend",
-    "AuditLogBuilder",
 )

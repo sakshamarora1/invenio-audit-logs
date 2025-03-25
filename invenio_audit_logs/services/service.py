@@ -24,3 +24,10 @@ class AuditLogService(RecordService):
             search_preference=search_preference,
             **kwargs,
         )
+
+    def log(self, log_event, identity):
+        """Log an audit event."""
+        self.require_permission(identity, "create")
+
+        data, errors = self.schema().load(log_event, context={"identity": identity})
+        self.record_cls.log(**data)

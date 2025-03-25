@@ -14,7 +14,7 @@ AUDIT_LOGS_SEARCH = {
     "sort": [
         "bestmatch",
         "newest",
-        # "oldest",
+        "oldest",
     ],
     # query_parser_cls
 }
@@ -22,14 +22,18 @@ AUDIT_LOGS_SEARCH = {
 
 AUDIT_LOGS_FACETS = {
     "resource": dict(
-        facet=TermsFacet(field="resource.type", label="resource", value_labels={"record": "Record", "user": "User"}),
+        facet=TermsFacet(
+            field="resource.type",
+            label="Resource",
+            value_labels={"record": "Record", "community": "Community"},
+        ),
         ui=dict(field="resource.type"),
     ),
 }
 
 AUDIT_LOGS_SORT_OPTIONS = {
     "bestmatch": dict(title="Best match", fields=["_score"]),
-    "newest": dict(title="Newest", fields=["_score"]),
-    # "oldest": dict(title="Oldest", fields=["-@timestamp"]),
+    "newest": dict(title="Newest", fields=["-timestamp"]),
+    "oldest": dict(title="Oldest", fields=["timestamp"]),
 }
 """Sort options for audit logs."""

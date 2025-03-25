@@ -10,8 +10,10 @@
 
 from flask import g
 from flask_resources import Resource, resource_requestctx, response_handler, route
-from invenio_records_resources.resources.records.resource import (  # request_data,; request_headers,
+from invenio_records_resources.resources.records.resource import (
+    request_data,
     request_extra_args,
+    request_headers,
     request_search_args,
     request_view_args,
 )
@@ -76,3 +78,15 @@ class AuditLogsResource(Resource):
             expand=resource_requestctx.args.get("expand", False),
         )
         return item.to_dict(), 200
+
+    @request_extra_args
+    @request_data
+    @response_handler()
+    def log(self):
+        """Log an audit event."""
+        item = self.service.log(
+            g.identity,
+            resource_requestctx.data or {},
+            expand=resource_requestctx.args.get("expand", False),
+        )
+        return item.to_dict(), 201

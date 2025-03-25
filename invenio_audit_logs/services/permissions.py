@@ -17,6 +17,6 @@ class AuditLogPermissionPolicy(BasePermissionPolicy):
 
     can_search = [Administration(), SystemProcess()]
     can_create = [SystemProcess()]
-    can_read = [Administration()]
+    can_read = [Administration(), SystemProcess()]
     can_update = [Disable()]
     can_delete = [Disable()]

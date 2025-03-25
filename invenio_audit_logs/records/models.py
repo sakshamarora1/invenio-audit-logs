@@ -7,25 +7,21 @@
 
 """Base model classes for Audit Logs in Invenio."""
 
+import uuid
 from abc import ABC, abstractmethod
-
-# from flask import current_app
-# from invenio_accounts.proxies import current_datastore
-from invenio_db import db
-from invenio_logging.proxies import current_datastream_logging_manager
 
 
 class AuditLogModel(ABC):
     """Model class that does not correspond to a database table."""
 
-    # Properties mapped to a ModelField on the AuditLog API class.
+    # Properties mapped to a ModelField on the Audit Log API class.
     _properties = [
         "timestamp",
         "event",
         "message",
         "user",
         "resource",
-        "extra", # TODO: Update all this to match the actual fields in DB later
+        "extra",  # TODO: Update all this to match the actual fields in DB later
     ]
     """Properties of this object that can be accessed."""
 
@@ -50,9 +46,6 @@ class AuditLogModel(ABC):
     @abstractmethod
     def model_obj(self):
         """The actual model object behind this mock model."""
-        if self._model_obj is None:
-            id_ = self._data.get("id")
-            self._model_obj = current_datastream_logging_manager.search("audit", {"_id": id_})[0]
         return self._model_obj
 
     def from_kwargs(self, kwargs):
@@ -64,10 +57,6 @@ class AuditLogModel(ABC):
         """Extract information from an audit log object."""
         for p in self._properties:
             self._data[p] = getattr(model_obj, p, None)
-
-        # Set defaults
-        # self._data["preferences"] = dict(self._data["preferences"] or {})
-        # self._data["preferences"].setdefault("visibility", "restricted")
 
     def __getattr__(self, name):
         """Get an attribute from the model."""
@@ -98,3 +87,8 @@ class AuditLogModel(ABC):
     def data(self):
         """Method needed for the record API."""
         return {p: getattr(self, p, None) for p in self._properties}
+
+    @classmethod
+    def generate_id(cls):
+        """Generate an ID for the record."""
+        return uuid.uuid4()

@@ -10,11 +10,14 @@
 
 from datetime import datetime
 
+from flask import current_app
 from invenio_records.dumpers import SearchDumper, SearchDumperExt
 from invenio_records.dumpers.indexedat import IndexedAtDumperExt
 from invenio_records.systemfields import ModelField
 from invenio_records_resources.records.api import Record
 from invenio_records_resources.records.systemfields import IndexField
+from invenio_search import current_search_client
+from invenio_search.utils import prefix_index
 
 from .models import AuditLogModel
 
@@ -38,7 +41,7 @@ class AuditLogEvent(Record):
 
     log_id = ModelField("log_id", dump_type=str)
 
-    timestamp = ModelField("timestamp", dump_type=datetime)
+    timestamp = ModelField("@timestamp", dump_type=datetime)
 
     event = ModelField("event", dump_type=dict)
 
@@ -73,15 +76,50 @@ class AuditLogEvent(Record):
     #     """Create an aggregate from an SQL Alchemy model."""
     #     return cls({}, model=cls.model_cls(model_obj=sa_model))
 
-    # def _validate(self, *args, **kwargs):
-    #     """Skip the validation."""
-    #     pass
+    def _validate(self, *args, **kwargs):
+        """Skip the validation."""
+        pass
 
     # @classmethod
     # def get_record(cls, id_):
     #     """Get the user via the specified ID."""
     #     # TODO: Implement the proper model lookup
     #     return cls.from_model(id_)
+
+    @classmethod
+    def log(
+        cls,
+        event={},
+        resource={},
+        user={},
+        extra={},
+        timestamp=None,
+        message=None,
+    ):
+        """
+        Create a LogEvent instance.
+
+        :param log_type: Type of log event.
+        :param event: Dict with `action` (required) and optional `description`.
+        :param resource: Dict with `type`, `id`, and optional `metadata`.
+        :param user: Dict with `id`, `email`, and optional `roles` (default: empty).
+        :param extra: Additional metadata dictionary (default: empty).
+        :param timestamp: Optional timestamp (defaults to now).
+        :param message: Optional human-readable message.
+        """
+
+        log_entry = {
+            "log_id": cls.model_cls.generate_id(),
+            "event": event,
+            "resource": resource,
+            "user": user,
+            "extra": extra,
+            "@timestamp": timestamp or datetime.now().isoformat(),
+            "message": message,
+        }
+        current_search_client.index(
+            index=prefix_index(cls.index.search_alias), body=log_entry
+        )
 
     def to_dict(self):
         """Convert the log event to a dictionary matching the schema."""

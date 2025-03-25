@@ -9,6 +9,7 @@
 """Invenio OpenSearch Datastream Schema."""
 
 from datetime import datetime
+
 from marshmallow import EXCLUDE, Schema, fields
 
 

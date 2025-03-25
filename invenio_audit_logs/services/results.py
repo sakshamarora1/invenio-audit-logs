@@ -9,7 +9,11 @@
 
 from collections.abc import Iterable, Sized
 
-from invenio_records_resources.services.records.results import RecordItem, RecordList, FieldsResolver
+from invenio_records_resources.services.records.results import (
+    FieldsResolver,
+    RecordItem,
+    RecordList,
+)
 
 
 class AuditLogItem(RecordItem):
@@ -82,7 +86,6 @@ class AuditLogItem(RecordItem):
         if self._errors:
             res["errors"] = self._errors
         return res
-
 
 
 class AuditLogList(RecordList):
