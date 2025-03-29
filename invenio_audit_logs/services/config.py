@@ -23,6 +23,7 @@ from invenio_records_resources.services.records.params import (
     SortParam,
 )
 from invenio_records_resources.services.records.queryparser import QueryParser
+from invenio_indexer.api import RecordIndexer
 from sqlalchemy import asc, desc
 
 from ..records import AuditLogEvent
@@ -90,6 +91,8 @@ class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
     schema = AuditLogSchema
 
     record_cls = AuditLogEvent
+    indexer_cls = RecordIndexer
+    indexer_queue_name = service_id
     index_dumper = None
 
     components = []

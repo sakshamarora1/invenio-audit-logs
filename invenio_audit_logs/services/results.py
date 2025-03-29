@@ -40,7 +40,7 @@ class AuditLogItem(RecordItem):
     @property
     def id(self):
         """Get the result id."""
-        return str(self.id)
+        return str(self.log_id)
 
     def __getitem__(self, key):
         """Key a key from the data."""

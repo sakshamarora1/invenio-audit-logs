@@ -8,26 +8,62 @@
 
 """Audit Logs Service API."""
 
-from invenio_records_resources.services.records import RecordService
-
+from datetime import datetime
+from invenio_records_resources.services.records import RecordService, ServiceSchemaWrapper
+from invenio_records_resources.services.uow import (
+    unit_of_work,
+)
+from .uow import AuditLogOp
 
 class AuditLogService(RecordService):
     """Audit log service layer."""
 
-    def search(self, identity, params=None, search_preference=None, **kwargs):
-        """Search for app logs."""
-        self.require_permission(identity, "search")
+    def _wrap_schema(self, schema):
+        """Wrap schema."""
+        return ServiceSchemaWrapper(self, schema)
 
-        return super().search(
-            identity,
-            params=params,
-            search_preference=search_preference,
-            **kwargs,
-        )
+    @unit_of_work()
+    def create(
+        self, identity, data, raise_errors=True, uow=None, expand=False
+    ):
+        """Create a record.
 
-    def log(self, log_event, identity):
-        """Log an audit event."""
+        :param identity: Identity of user creating the record.
+        :param dict data: Input data according to the data schema.
+        :param bool raise_errors: raise schema ValidationError or not.
+        """
         self.require_permission(identity, "create")
 
-        data, errors = self.schema().load(log_event, context={"identity": identity})
-        self.record_cls.log(**data)
+        data["created"] = datetime.now().isoformat()
+
+        # Validate data and create record with pid
+        schema_data, errors = self.schema.load(
+            data,
+            context={"identity": identity},
+            raise_errors=raise_errors,  # if False, flow is continued with data
+            # only containing valid data, but errors
+            # are reported (as warnings)
+        )
+
+        # It's the components who saves the actual data in the record.
+        log = self.record_cls.create(
+            {},
+            **schema_data,
+        )
+
+        json = self.schema.dump(
+            data,
+            context={"identity": identity},
+        )
+        log.update(json)
+
+        # Persist record (DB and index)
+        uow.register(AuditLogOp(log, self.indexer))
+
+        return self.result_item(
+            self,
+            identity,
+            log,
+            links_tpl=self.links_item_tpl,
+            errors=errors,
+        )

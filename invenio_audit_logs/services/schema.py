@@ -10,7 +10,7 @@
 
 from datetime import datetime
 
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, Schema, fields, pre_dump, pre_load
 
 
 class UserSchema(Schema):
@@ -51,7 +51,6 @@ class ResourceSchema(Schema):
         required=False, description="Optional metadata related to the resource."
     )
 
-
 class AuditLogSchema(Schema):
     """Main schema for audit log events in InvenioRDM."""
 
@@ -61,46 +60,49 @@ class AuditLogSchema(Schema):
         unknown = EXCLUDE  # Ignore unknown fields
 
     log_id = fields.Str(
-        required=False,
         description="Unique identifier of the audit log event.",
     )
-    timestamp = fields.DateTime(
+    created = fields.DateTime(
         required=True,
         description="Timestamp when the event occurred.",
-        attribute="@timestamp",
+        attribute="created",
     )
-    event = fields.Nested(EventSchema, required=True)
+    action = fields.Str(
+        required=True,
+        description="The action that took place (e.g., created, deleted).",
+        load_only=True,
+    )
+    event = fields.Nested(EventSchema, required=True, dump_only=True)
     message = fields.Str(
-        required=True, description="Human-readable description of the event."
+        required=True, description="Human-readable description of the event.",
+        dump_only=True,
     )
     user = fields.Nested(
         UserSchema,
-        required=False,
+        required=True,
         description="Information about the user who triggered the event.",
+        dump_only=True,
     )
     resource = fields.Nested(
         ResourceSchema,
         required=True,
         description="Information about the affected resource.",
+        dump_only=True,
     )
     extra = fields.Dict(
-        required=False, description="Additional structured metadata for logging."
+        required=False, description="Additional structured metadata for logging.",
+        dump_only=True,
     )
 
-    def _convert_timestamp(self, obj):
+    @pre_load
+    def _propagate_action(self, data, **kwargs):
+        """Propagate the `action` field from the `event` field."""
+        data["action"] = data["event"]["action"]
+        return data
+
+    @pre_dump
+    def _convert_timestamp(self, obj, **kwargs):
         """Convert `timestamp` from ISO string to datetime if needed."""
-        if isinstance(obj.get("@timestamp"), str):
-            obj["@timestamp"] = datetime.fromisoformat(obj["@timestamp"])
+        if isinstance(obj["created"], str):
+            obj["created"] = datetime.fromisoformat(obj["created"])
         return obj
-
-    def dump(self, obj, **kwargs):
-        """Ensure `timestamp` is always a `datetime` before dumping.
-
-        Since we are calling this from a celery task, we need to ensure that the `timestamp` field is a `datetime` object
-        """
-        if isinstance(obj, list):
-            obj = [self._convert_timestamp(item) for item in obj]
-        else:
-            obj = self._convert_timestamp(obj)
-
-        return super().dump(obj, **kwargs)
