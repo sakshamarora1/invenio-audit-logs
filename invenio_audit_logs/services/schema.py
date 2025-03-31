@@ -51,6 +51,7 @@ class ResourceSchema(Schema):
         required=False, description="Optional metadata related to the resource."
     )
 
+
 class AuditLogSchema(Schema):
     """Main schema for audit log events in InvenioRDM."""
 
@@ -65,7 +66,7 @@ class AuditLogSchema(Schema):
     created = fields.DateTime(
         required=True,
         description="Timestamp when the event occurred.",
-        attribute="created",
+        data_key="@timestamp",
     )
     action = fields.Str(
         required=True,
@@ -74,7 +75,8 @@ class AuditLogSchema(Schema):
     )
     event = fields.Nested(EventSchema, required=True, dump_only=True)
     message = fields.Str(
-        required=True, description="Human-readable description of the event.",
+        required=True,
+        description="Human-readable description of the event.",
         dump_only=True,
     )
     user = fields.Nested(
@@ -90,7 +92,8 @@ class AuditLogSchema(Schema):
         dump_only=True,
     )
     extra = fields.Dict(
-        required=False, description="Additional structured metadata for logging.",
+        required=False,
+        description="Additional structured metadata for logging.",
         dump_only=True,
     )
 
@@ -103,6 +106,7 @@ class AuditLogSchema(Schema):
     @pre_dump
     def _convert_timestamp(self, obj, **kwargs):
         """Convert `timestamp` from ISO string to datetime if needed."""
-        if isinstance(obj["created"], str):
-            obj["created"] = datetime.fromisoformat(obj["created"])
+        timestamp = getattr(obj, "created", getattr(obj, "@timestamp", None))
+        if isinstance(timestamp, str):
+            obj["@timestamp"] = datetime.fromisoformat(timestamp)
         return obj

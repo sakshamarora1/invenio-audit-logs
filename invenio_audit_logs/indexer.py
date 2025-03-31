@@ -9,12 +9,14 @@
 
 from __future__ import absolute_import, print_function
 
-def indexer_receiver(sender, json=None, record=None, index=None,
-                     **dummy_kwargs):
+
+def indexer_receiver(sender, json=None, record=None, index=None, **dummy_kwargs):
     """Connect to before_record_index signal to transform record for indexing."""
-    if index and index.startswith('auditlog-'):
+    if index and index.startswith("auditlog-"):
         # Remove _created and _updated fields added by invenio-indexer _prepare_record API
-        json.pop('_created', None)
-        json.pop('_updated', None)
-        # Rename created to @timestamp for datastream compatibility
-        json["@timestamp"] = json.pop('created')
+        json.pop("_created", None)
+        json.pop("_updated", None)
+        # Add log_id field to the index which is only available after db commit
+        json["log_id"] = record.model.log_id
+        # Add @timestamp field for datastream compatibility
+        json["@timestamp"] = record.model.created

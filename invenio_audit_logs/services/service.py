@@ -9,11 +9,15 @@
 """Audit Logs Service API."""
 
 from datetime import datetime
-from invenio_records_resources.services.records import RecordService, ServiceSchemaWrapper
+from invenio_records_resources.services.records import (
+    RecordService,
+    ServiceSchemaWrapper,
+)
 from invenio_records_resources.services.uow import (
     unit_of_work,
 )
 from .uow import AuditLogOp
+
 
 class AuditLogService(RecordService):
     """Audit log service layer."""
@@ -23,9 +27,7 @@ class AuditLogService(RecordService):
         return ServiceSchemaWrapper(self, schema)
 
     @unit_of_work()
-    def create(
-        self, identity, data, raise_errors=True, uow=None, expand=False
-    ):
+    def create(self, identity, data, raise_errors=True, uow=None, expand=False):
         """Create a record.
 
         :param identity: Identity of user creating the record.
@@ -34,28 +36,25 @@ class AuditLogService(RecordService):
         """
         self.require_permission(identity, "create")
 
-        data["created"] = datetime.now().isoformat()
+        data["@timestamp"] = datetime.now().isoformat()
 
         # Validate data and create record with pid
         schema_data, errors = self.schema.load(
             data,
             context={"identity": identity},
-            raise_errors=raise_errors,  # if False, flow is continued with data
-            # only containing valid data, but errors
-            # are reported (as warnings)
+            raise_errors=raise_errors,
         )
 
-        # It's the components who saves the actual data in the record.
         log = self.record_cls.create(
             {},
             **schema_data,
         )
 
-        json = self.schema.dump(
+        json_dump = self.schema.dump(
             data,
             context={"identity": identity},
         )
-        log.update(json)
+        log.update(json_dump)
 
         # Persist record (DB and index)
         uow.register(AuditLogOp(log, self.indexer))

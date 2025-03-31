@@ -25,11 +25,11 @@ class AuditLogEvent(Record):
     model_cls = AuditLogModel
     """The model class for the log."""
 
-    enable_jsonref = True
-
-    dumper = SearchDumper(
-        extensions=[AuditLogJsonDumperExt()],
+    enable_jsonref = (
+        True  # Resolves the record to the JSON field when dumping to the index
     )
+
+    dumper = SearchDumper()
     """Search dumper with configured extensions."""
 
     index = IndexField("auditlog-audit-log-v1.0.0", search_alias="auditlog")

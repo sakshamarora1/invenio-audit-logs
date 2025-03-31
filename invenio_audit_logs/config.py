@@ -33,7 +33,7 @@ AUDIT_LOGS_FACETS = {
 
 AUDIT_LOGS_SORT_OPTIONS = {
     "bestmatch": dict(title="Best match", fields=["_score"]),
-    "newest": dict(title="Newest", fields=["-timestamp"]),
-    "oldest": dict(title="Oldest", fields=["timestamp"]),
+    "newest": dict(title="Newest", fields=["-@timestamp"]),
+    "oldest": dict(title="Oldest", fields=["@timestamp"]),
 }
 """Sort options for audit logs."""

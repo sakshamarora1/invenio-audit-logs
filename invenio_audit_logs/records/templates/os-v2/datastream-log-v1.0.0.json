@@ -6,6 +6,7 @@
       "dynamic": "strict",
       "numeric_detection": false,
       "properties": {
+        "log_id": { "type": "keyword" },
         "event": {
           "properties": {
             "action": { "type": "keyword" },
