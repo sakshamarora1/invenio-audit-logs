@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2025 CERN.
 #
-# Invenio-Notifications is free software; you can redistribute it and/or modify it
+# Invenio-Audit-Logs is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Audit Logs Service Results."""
@@ -10,7 +10,6 @@
 from collections.abc import Iterable, Sized
 
 from invenio_records_resources.services.records.results import (
-    FieldsResolver,
     RecordItem,
     RecordList,
 )
@@ -40,7 +39,7 @@ class AuditLogItem(RecordItem):
     @property
     def id(self):
         """Get the result id."""
-        return str(self.log_id)
+        return str(self.id)
 
     def __getitem__(self, key):
         """Key a key from the data."""

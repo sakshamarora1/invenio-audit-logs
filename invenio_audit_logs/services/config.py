@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2025 CERN.
 #
-# Invenio-Notifications is free software; you can redistribute it and/or modify it
+# Invenio-Audit-Logs is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Audit Logs Service Config."""
@@ -30,6 +30,7 @@ from ..records import AuditLogEvent
 from . import results
 from .permissions import AuditLogPermissionPolicy
 from .schema import AuditLogSchema
+from .components import LogJsonComponent
 
 
 class AuditLogSearchOptions(SearchOptionsBase):
@@ -46,9 +47,8 @@ class AuditLogSearchOptions(SearchOptionsBase):
 
     query_parser_cls = QueryParser.factory(
         fields=[
-            "id",
-            "message",
-            "event.action",
+            "log_id",
+            "action",
             "user.id",
             "user.email",
             "resource.id",
@@ -65,7 +65,7 @@ class AuditLogSearchOptions(SearchOptionsBase):
         "resource": TermsFacet(
             field="resource.type",
             label="Resource",
-            value_labels={"record": "Record", "community": "Community"},
+            value_labels={"record": "Record", "community": "Community"}, # TODO: Enum
         ),
     }
 
@@ -99,7 +99,7 @@ class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
     links_item = {
         "self": Link("{+api}/audit-logs/{id}"),
     }
-    links_search = pagination_links("{+api}/audit-logs/{id}{?args*}")
+    links_search = pagination_links("{+api}/audit-logs/{id}{?args*}") # TODO: Fix this
 
     result_item_cls = results.AuditLogItem
     result_list_cls = results.AuditLogList

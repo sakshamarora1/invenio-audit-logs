@@ -3,12 +3,13 @@
 # This file is part of Invenio.
 # Copyright (C) 2025 CERN.
 #
-# Invenio is free software; you can redistribute it and/or modify it
+# Invenio-Audit-Logs is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """API classes for audit log event."""
 
 from datetime import datetime
+from uuid import UUID
 
 from invenio_records.dumpers import SearchDumper
 from invenio_records.systemfields import ModelField
@@ -25,23 +26,24 @@ class AuditLogEvent(Record):
     model_cls = AuditLogModel
     """The model class for the log."""
 
-    enable_jsonref = (
-        True  # Resolves the record to the JSON field when dumping to the index
+    dumper = SearchDumper(
+        model_fields={
+            "id": ("log_id", UUID),
+            "created": ("@timestamp", datetime),
+        },
+        extensions=[AuditLogJsonDumperExt(),]
     )
-
-    dumper = SearchDumper()
     """Search dumper with configured extensions."""
 
     index = IndexField("auditlog-audit-log-v1.0.0", search_alias="auditlog")
     """The search engine index to use."""
 
-    log_id = ModelField("log_id", dump_type=str)
+    id = ModelField("id", dump_type=UUID)
 
-    timestamp = ModelField("created", dump_type=datetime)
+    created = ModelField("created", dump_type=datetime)
 
     action = ModelField("action", dump_type=str)
 
-    json = ModelField("json", dump_type=dict)
+    resource_type = ModelField("resource_type", dump_type=str)
 
-    metadata = None
-    """Disabled metadata field from the base class."""
+    user_id = ModelField("user_id", dump_type=str)

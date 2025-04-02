@@ -3,7 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2025 CERN.
 #
-# Invenio-Notifications is free software; you can redistribute it and/or modify it
+# Invenio-Audit-Logs is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Audit Logs Service API."""
@@ -36,10 +36,8 @@ class AuditLogService(RecordService):
         """
         self.require_permission(identity, "create")
 
-        data["@timestamp"] = datetime.now().isoformat()
-
         # Validate data and create record with pid
-        schema_data, errors = self.schema.load(
+        data, errors = self.schema.load(
             data,
             context={"identity": identity},
             raise_errors=raise_errors,
@@ -47,14 +45,11 @@ class AuditLogService(RecordService):
 
         log = self.record_cls.create(
             {},
-            **schema_data,
+            **data,
         )
 
-        json_dump = self.schema.dump(
-            data,
-            context={"identity": identity},
-        )
-        log.update(json_dump)
+        # Inject the json field into the record
+        log.update(data.get("json", {}))
 
         # Persist record (DB and index)
         uow.register(AuditLogOp(log, self.indexer))

@@ -10,9 +10,6 @@
 from . import config
 from .resources import AuditLogsResource, AuditLogsResourceConfig
 from .services import AuditLogService, AuditLogServiceConfig
-from .indexer import indexer_receiver
-
-from invenio_indexer.signals import before_record_index
 
 
 class InvenioAuditLogs(object):
@@ -28,7 +25,6 @@ class InvenioAuditLogs(object):
         self.init_config(app)
         self.init_services(app)
         self.init_resources(app)
-        before_record_index.connect(indexer_receiver, sender=app)
         app.extensions["invenio-audit-logs"] = self
 
     def init_config(self, app):

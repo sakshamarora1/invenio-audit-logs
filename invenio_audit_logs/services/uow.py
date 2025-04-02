@@ -3,7 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2025 CERN.
 #
-# Invenio is free software; you can redistribute it and/or modify it
+# Invenio-Audit-Logs is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Unit of work operations for audit logs."""
@@ -28,9 +28,4 @@ class AuditLogOp(Operation):
     def on_commit(self, uow):
         """Run the operation."""
         arguments = {"refresh": True} if self._index_refresh else {}
-        index = self._indexer.record_to_index(self._record)
-        body = self._indexer._prepare_record(self._record, index, arguments)
-        index = self._indexer._prepare_index(index)
-
-        # We don't want to pass the identity to the indexer because datastreams creation doesn't allow it as it is append only
-        return self._indexer.client.index(index=index, body=body, **arguments)
+        return self._indexer.index_to_datastream(self._record, arguments)

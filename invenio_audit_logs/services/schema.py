@@ -3,7 +3,7 @@
 # This file is part of Invenio.
 # Copyright (C) 2025 CERN.
 #
-# Invenio is free software; you can redistribute it and/or
+# Invenio-Audit-Logs is free software; you can redistribute it and/or
 # modify it under the terms of the MIT License; see LICENSE file for more details.
 
 """Invenio OpenSearch Datastream Schema."""
@@ -16,39 +16,40 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump, pre_load
 class UserSchema(Schema):
     """User schema for logging."""
 
-    id = fields.Str(required=True, description="User ID responsible for the event.")
+    name = fields.Str(required=False, description="User name (if available).")
     email = fields.Email(required=False, description="User email (if available).")
-    roles = fields.List(
-        fields.Str(), required=False, description="Roles assigned to the user."
-    )
-
-
-class EventSchema(Schema):
-    """Event schema for logging."""
-
-    action = fields.Str(
-        required=True,
-        description="The action that took place (e.g., created, deleted).",
-    )
-    status = fields.Str(
-        required=False,
-        description="Status of the event (e.g., success, failure).",
-    )
-    description = fields.Str(
-        required=False, description="Detailed description of the event."
-    )
 
 
 class ResourceSchema(Schema):
     """Resource schema to track affected entities."""
 
-    type = fields.Str(
-        required=True,
-        description="Type of resource (e.g., record, community, user, file).",
-    )
     id = fields.Str(required=True, description="Unique identifier of the resource.")
+
+
+class AuditLogMetadata(Schema):
+    """Metadata schema for audit log events (JSON Field)."""
+
+    status = fields.Str(
+        required=False,
+        description="Status of the event (e.g., success, failure).",
+    )
+    message = fields.Str(
+        required=False,
+        description="Human-readable description of the event.",
+    )
+    user = fields.Nested(
+        UserSchema,
+        required=False,
+        description="Information about the user who triggered the event.",
+    )
+    resource = fields.Nested(
+        ResourceSchema,
+        required=True,
+        description="Information about the affected resource.",
+    )
     metadata = fields.Dict(
-        required=False, description="Optional metadata related to the resource."
+        required=False,
+        description="Additional structured metadata for logging.",
     )
 
 
@@ -60,53 +61,48 @@ class AuditLogSchema(Schema):
 
         unknown = EXCLUDE  # Ignore unknown fields
 
-    log_id = fields.Str(
+    id = fields.Str(
         description="Unique identifier of the audit log event.",
     )
     created = fields.DateTime(
         required=True,
         description="Timestamp when the event occurred.",
-        data_key="@timestamp",
     )
     action = fields.Str(
         required=True,
-        description="The action that took place (e.g., created, deleted).",
+        description="The action that took place (e.g., record.create, community.update).",
         load_only=True,
     )
-    event = fields.Nested(EventSchema, required=True, dump_only=True)
-    message = fields.Str(
+    resource_type = fields.Str(
         required=True,
-        description="Human-readable description of the event.",
-        dump_only=True,
+        description="Type of resource (e.g., record, community, user).",
     )
-    user = fields.Nested(
-        UserSchema,
+    user_id = fields.Str(
         required=True,
-        description="Information about the user who triggered the event.",
-        dump_only=True,
+        description="ID of the user who triggered the event.",
     )
-    resource = fields.Nested(
-        ResourceSchema,
+    json = fields.Nested(
+        AuditLogMetadata,
         required=True,
-        description="Information about the affected resource.",
-        dump_only=True,
-    )
-    extra = fields.Dict(
-        required=False,
-        description="Additional structured metadata for logging.",
-        dump_only=True,
+        description="Structured metadata for the audit log event.",
     )
 
     @pre_load
-    def _propagate_action(self, data, **kwargs):
-        """Propagate the `action` field from the `event` field."""
-        data["action"] = data["event"]["action"]
+    def _before_db_insert(self, json, **kwargs):
+        """Manipulate fields before DB insert."""
+        data = {
+            "created": datetime.now().isoformat(),
+            "action": json.pop("action", None),
+            "user_id": json["user"].pop("id", None),
+            "resource_type": json["resource"].pop("type", None),
+            "json": json.copy(),
+        }
         return data
 
     @pre_dump
-    def _convert_timestamp(self, obj, **kwargs):
-        """Convert `timestamp` from ISO string to datetime if needed."""
-        timestamp = getattr(obj, "created", getattr(obj, "@timestamp", None))
-        if isinstance(timestamp, str):
-            obj["@timestamp"] = datetime.fromisoformat(timestamp)
-        return obj
+    def _convert_timestamp(self, data, **kwargs):
+        """Convert `created` from ISO string to datetime if needed."""
+        created = getattr(data, "created", None)
+        if isinstance(created, str):
+            data["created"] = datetime.fromisoformat(created)
+        return data

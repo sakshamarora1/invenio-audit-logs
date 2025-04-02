@@ -7,36 +7,25 @@
       "numeric_detection": false,
       "properties": {
         "log_id": { "type": "keyword" },
-        "event": {
-          "properties": {
-            "action": { "type": "keyword" },
-            "status": { "type": "keyword" },
-            "description": { "type": "text" }
-          }
-        },
+        "version_id": { "type": "integer" },
+        "action": { "type": "keyword" },
+        "resource_type": { "type": "keyword" },
+        "user_id": { "type": "integer" },
         "message": { "type": "text" },
         "user": {
           "properties": {
-            "id": { "type": "keyword" },
-            "email": { "type": "keyword" },
-            "roles": { "type": "keyword" }
+            "name": { "type": "keyword" },
+            "email": { "type": "keyword" }
           }
         },
         "resource": {
           "properties": {
             "type": { "type": "keyword" },
-            "id": { "type": "keyword" },
-            "metadata": { "type": "object", "enabled": false },
-            "parent": {
-              "properties": {
-                "type": { "type": "keyword" },
-                "id": { "type": "keyword" },
-                "metadata": { "type": "object", "enabled": false }
-              }
-            }
+            "id": { "type": "keyword" }
           }
         },
-        "extra": { "type": "object", "enabled": false }
+        "updated": { "type": "date" },
+        "metadata": { "type": "object", "enabled": false }
       }
     },
     "aliases": {
