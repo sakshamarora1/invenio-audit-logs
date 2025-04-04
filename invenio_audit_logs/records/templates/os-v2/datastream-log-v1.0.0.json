@@ -18,14 +18,9 @@
             "email": { "type": "keyword" }
           }
         },
-        "resource": {
-          "properties": {
-            "type": { "type": "keyword" },
-            "id": { "type": "keyword" }
-          }
-        },
-        "updated": { "type": "date" },
-        "metadata": { "type": "object", "enabled": false }
+        "resource_id": { "type": "keyword" },
+        "metadata": { "type": "object", "enabled": false },
+        "updated": { "type": "date" }
       }
     },
     "aliases": {

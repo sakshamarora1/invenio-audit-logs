@@ -16,8 +16,8 @@ from invenio_records.systemfields import ModelField
 from invenio_records_resources.records.api import Record
 from invenio_records_resources.records.systemfields import IndexField
 
-from .models import AuditLogModel
 from .dumpers import AuditLogJsonDumperExt
+from .models import AuditLogModel
 
 
 class AuditLogEvent(Record):
@@ -31,7 +31,9 @@ class AuditLogEvent(Record):
             "id": ("log_id", UUID),
             "created": ("@timestamp", datetime),
         },
-        extensions=[AuditLogJsonDumperExt(),]
+        extensions=[
+            AuditLogJsonDumperExt(),
+        ],
     )
     """Search dumper with configured extensions."""
 

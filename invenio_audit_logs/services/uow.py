@@ -8,8 +8,8 @@
 
 """Unit of work operations for audit logs."""
 
-from invenio_records_resources.services.uow import Operation
 from invenio_db.uow import Operation
+from invenio_records_resources.services.uow import Operation
 
 
 class AuditLogOp(Operation):

@@ -20,7 +20,7 @@ class AuditLogModel(db.Model, RecordMetadataBase):
 
     encoder = None
 
-    action = db.Column(String(255), nullable=False) # TODO: Might change to Enum
+    action = db.Column(String(255), nullable=False)  # TODO: Might change to Enum
 
     resource_type = db.Column(String(255), nullable=False)
 

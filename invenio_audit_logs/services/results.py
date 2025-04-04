@@ -9,10 +9,7 @@
 
 from collections.abc import Iterable, Sized
 
-from invenio_records_resources.services.records.results import (
-    RecordItem,
-    RecordList,
-)
+from invenio_records_resources.services.records.results import RecordItem, RecordList
 
 
 class AuditLogItem(RecordItem):
@@ -42,7 +39,7 @@ class AuditLogItem(RecordItem):
         return str(self.id)
 
     def __getitem__(self, key):
-        """Key a key from the data."""
+        """Get a key from the data."""
         return self.data[key]
 
     @property

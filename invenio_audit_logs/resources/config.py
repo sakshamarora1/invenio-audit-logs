@@ -53,10 +53,7 @@ class AuditLogsResourceConfig(RecordResourceConfig, ConfiguratorMixin):
     }
 
     request_view_args = {
-        "resource_id": fields.String(),
-        # "resource_type": fields.String(), # TODO: Add direct querying via other search parameters?
-        # "user_id": fields.String(),
-        # "action": fields.String(),
+        "id": fields.UUID(),  # TODO: Add direct querying via other search parameters?
     }
 
     request_search_args = AuditLogSearchRequestArgsSchema

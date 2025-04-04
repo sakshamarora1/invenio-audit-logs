@@ -23,11 +23,14 @@ AUDIT_LOGS_SEARCH = {
 AUDIT_LOGS_FACETS = {
     "resource": dict(
         facet=TermsFacet(
-            field="resource.type",
+            field="resource_type",
             label="Resource",
-            value_labels={"record": "Record", "community": "Community"},
+            value_labels={
+                "record": "Record",
+                "community": "Community",
+            },  # Add user later
         ),
-        ui=dict(field="resource.type"),
+        ui=dict(field="resource_type"),
     ),
 }
 

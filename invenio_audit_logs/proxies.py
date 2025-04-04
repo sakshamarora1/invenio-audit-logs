@@ -10,5 +10,7 @@
 from flask import current_app
 from werkzeug.local import LocalProxy
 
-current_audit_logs = LocalProxy(lambda: current_app.extensions["invenio-audit-logs"])
+current_audit_logs_service = LocalProxy(
+    lambda: current_app.extensions["invenio-audit-logs"].audit_log_service
+)
 """Proxy to an instance of ``AuditLogs`` service."""

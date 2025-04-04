@@ -61,7 +61,6 @@ class AuditLogsResource(Resource):
             identity=g.identity,
             params=resource_requestctx.args,
             search_preference=search_preference(),
-            expand=resource_requestctx.args.get("expand", False),
         )
         return hits.to_dict(), 200
 
@@ -70,9 +69,8 @@ class AuditLogsResource(Resource):
     @response_handler()
     def read(self):
         """Read a specific log entry."""
-        item = self.service.read_all(
+        item = self.service.read(
             id_=resource_requestctx.view_args["id"],
             identity=g.identity,
-            expand=resource_requestctx.args.get("expand", False),
         )
         return item.to_dict(), 200

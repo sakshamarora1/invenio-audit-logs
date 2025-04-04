@@ -8,6 +8,7 @@
 """Audit Logs Service Config."""
 
 from invenio_i18n import lazy_gettext as _
+from invenio_indexer.api import RecordIndexer
 from invenio_records_resources.services import pagination_links
 from invenio_records_resources.services.base import ServiceConfig
 from invenio_records_resources.services.base.config import ConfiguratorMixin, FromConfig
@@ -23,14 +24,12 @@ from invenio_records_resources.services.records.params import (
     SortParam,
 )
 from invenio_records_resources.services.records.queryparser import QueryParser
-from invenio_indexer.api import RecordIndexer
 from sqlalchemy import asc, desc
 
 from ..records import AuditLogEvent
 from . import results
 from .permissions import AuditLogPermissionPolicy
 from .schema import AuditLogSchema
-from .components import LogJsonComponent
 
 
 class AuditLogSearchOptions(SearchOptionsBase):
@@ -63,9 +62,9 @@ class AuditLogSearchOptions(SearchOptionsBase):
 
     facets = {
         "resource": TermsFacet(
-            field="resource.type",
+            field="resource_type",
             label="Resource",
-            value_labels={"record": "Record", "community": "Community"}, # TODO: Enum
+            value_labels={"record": "Record", "community": "Community"},  # TODO: Enum
         ),
     }
 
@@ -77,6 +76,11 @@ class AuditLogSearchOptions(SearchOptionsBase):
         PaginationParam,
         FacetsParam,
     ]
+
+
+def idvar(log, vars):
+    """Add domain into link vars."""
+    vars["id"] = log["log_id"]
 
 
 class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
@@ -97,9 +101,9 @@ class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
 
     components = []
     links_item = {
-        "self": Link("{+api}/audit-logs/{id}"),
+        "self": Link("{+api}/audit-logs/{id}", vars=idvar),
     }
-    links_search = pagination_links("{+api}/audit-logs/{id}{?args*}") # TODO: Fix this
+    links_search = pagination_links("{+api}/audit-logs{?args*}")
 
     result_item_cls = results.AuditLogItem
     result_list_cls = results.AuditLogList

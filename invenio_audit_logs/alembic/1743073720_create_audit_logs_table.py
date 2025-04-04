@@ -7,11 +7,10 @@
 
 """Create Audit Logs table."""
 
-from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
-from sqlalchemy.dialects import postgresql
 import sqlalchemy_utils
+from alembic import op
+from sqlalchemy.dialects import mysql, postgresql
 
 # revision identifiers, used by Alembic.
 revision = "1743073720"
