@@ -8,7 +8,7 @@
 
 """Audit Logs Service API."""
 
-from flask import current_app, request
+from flask import request
 from invenio_accounts.proxies import current_datastore
 from invenio_records_resources.services.records import RecordService
 from invenio_records_resources.services.uow import unit_of_work
