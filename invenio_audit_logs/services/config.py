@@ -82,6 +82,9 @@ def idvar(log, vars):
     """Add domain into link vars."""
     vars["id"] = log.id
 
+def uservar(log, vars):
+    """Add user_id into link vars."""
+    vars["user_id"] = log.user_id
 
 class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
     """Audit log service configuration."""
@@ -102,6 +105,7 @@ class AuditLogServiceConfig(ServiceConfig, ConfiguratorMixin):
     components = []
     links_item = {
         "self": Link("{+api}/audit-logs/{id}", vars=idvar),
+        "user": Link("{+api}/users/{user_id}", vars=uservar),
     }
     links_search = pagination_links("{+api}/audit-logs{?args*}")
 

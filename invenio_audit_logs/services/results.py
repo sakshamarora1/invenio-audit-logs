@@ -23,6 +23,7 @@ class AuditLogItem(RecordItem):
         errors=None,
         links_tpl=None,
         schema=None,
+        action_factory=None,
     ):
         """Constructor."""
         self._data = None
@@ -32,6 +33,7 @@ class AuditLogItem(RecordItem):
         self._service = service
         self._links_tpl = links_tpl
         self._schema = schema or service.schema
+        self._action_factory = action_factory
 
     @property
     def id(self):
@@ -90,6 +92,8 @@ class AuditLogList(RecordList):
 
             if self._links_item_tpl:
                 projection["links"] = self._links_item_tpl.expand(self._identity, hit)
+            if self._action_factory and "message" not in projection["json"]:
+                projection["message"] = self._action_factory.render_message(projection["links"])
 
             yield projection
 
