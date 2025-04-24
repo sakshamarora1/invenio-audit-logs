@@ -27,6 +27,7 @@ class InvenioAuditLogs(object):
         self.init_config(app)
         self.init_services(app)
         self.init_resources(app)
+        self.load_actions_registry()
         app.extensions["invenio-audit-logs"] = self
 
     def init_config(self, app):
@@ -54,5 +55,5 @@ class InvenioAuditLogs(object):
             resource_type = ep.name
             resource_actions = ep.load()
             self.actions_registry.setdefault(resource_type, {})
-            for action_name, action_factory in resource_actions.items():
+            for action_name, action_factory in resource_actions().items():
                 self.actions_registry[resource_type][action_name] = action_factory

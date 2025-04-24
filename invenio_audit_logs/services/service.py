@@ -64,7 +64,6 @@ class AuditLogService(RecordService):
             identity,
             log,
             links_tpl=self.links_item_tpl,
-            action_factory=current_audit_logs_actions_registry[data["resource_type"][data["action"]]],
             errors=errors,
         )
 
@@ -86,4 +85,5 @@ class AuditLogService(RecordService):
             identity,
             log,
             links_tpl=self.links_item_tpl,
+            action_factory=current_audit_logs_actions_registry[log["resource_type"]][log["action"]],
         )

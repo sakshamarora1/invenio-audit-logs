@@ -56,6 +56,8 @@ class AuditLogItem(RecordItem):
 
         if self._links_tpl:
             self._data["links"] = self.links
+        if self._action_factory:
+            self._data["message"] = self._action_factory.render_message(self._data)
 
         return self._data
 
@@ -92,8 +94,6 @@ class AuditLogList(RecordList):
 
             if self._links_item_tpl:
                 projection["links"] = self._links_item_tpl.expand(self._identity, hit)
-            if self._action_factory and "message" not in projection["json"]:
-                projection["message"] = self._action_factory.render_message(projection["links"])
 
             yield projection
 

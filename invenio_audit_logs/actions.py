@@ -28,20 +28,21 @@ class AuditAction:
         "draft.create": AuditAction(
             name="draft.create",
             message_template="User {user_id} created the draft {resource_id}.",
-            link_factory=lambda id: f"/uploads/{id}"
+            link_templates=lambda id: f"/uploads/{id}"
         ),
         "draft.edit": AuditAction(
             name="draft.edit",
             message_template="User {user_id} updated the draft {resource_id}.",
-            link_factory=lambda id: f"/uploads/{id}"
+            link_templates=lambda id: f"/uploads/{id}"
         ),
         "record.publish": AuditAction(
             name="record.publish",
             message_template="User {user_id} published the record {resource_id}.",
-            link_factory=lambda id: f"/records/{id}"
+            link_templates=lambda id: f"/records/{id}"
         ),
     }
     """
+
     name: str
     message_template: str
     link_templates: Optional[Dict[str, Callable[[str], str]]] = None
@@ -49,9 +50,3 @@ class AuditAction:
     def render_message(self, data):
         """Render the message using the provided data."""
         return self.message_template.format(**data)
-
-    def generate_links(self, ids):
-        """Render the message using the link_templates."""
-        if not self.link_templates:
-            return {}
-        return {key: template(ids(key)) for key, template in self.link_templates()}
